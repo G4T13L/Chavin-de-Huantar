@@ -40,6 +40,8 @@ def LoadTexture(name):
 
     return id
 # A general OpenGL initialization function.  Sets all of the initial parameters.
+
+
 def InitGL(Width, Height):  # We call this right after our OpenGL window is created.
     global textures, glMultiTexCoord2f, glActiveTexture, GL_TEXTURE0
 
@@ -91,40 +93,105 @@ def ReSizeGLScene(Width, Height):
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(45.0, float(Width) / float(Height), 0.1, 100.0)
+    gluLookAt(0,0,5,2,2,5,0,0,1)
     glMatrixMode(GL_MODELVIEW)
 
-def DrawGLScene():
-    global rot, texture
+def dibujar_piso(x,y,z):
+	glPushMatrix();
+	glTranslatef(x, y, z)
+	glBegin(GL_QUADS)  # Start Drawing The Cube
+  	# Front Face (note that the texture's corners have to match the quad's corners)
+  	glMultiTexCoord2f(GL_TEXTURE0_ARB, 0.0, 0.0) 
+    	glVertex3f(-1.0, -1.0, 1.0)  # Bottom Left Of The Texture and Quad
+    	glMultiTexCoord2f(GL_TEXTURE0_ARB, 1.0, 0.0) 
+    	glVertex3f(1.0, -1.0, 1.0)  # Bottom Right Of The Texture and Quad
+    	glMultiTexCoord2f(GL_TEXTURE0_ARB, 1.0, 1.0) 
+    	glVertex3f(1.0, 1.0, 1.0)  # Top Right Of The Texture and Quad
+    	glMultiTexCoord2f(GL_TEXTURE0_ARB, 0.0, 1.0) 
+    	glVertex3f(-1.0, 1.0, 1.0)  # Top Left Of The Texture and Quad
+    	glEnd()
+	glPopMatrix();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear The Screen And The Depth Buffer
-    glLoadIdentity()  # Reset The View
-    glTranslatef(0.0, 0.0, -5.0)  # Move Into The Screen
-
+def camara():
+	global x,y,z,vx,vz
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(60.0, 1.0, 1.0, 128.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity()
+	gluLookAt(0+x,0+y,5+z, 2+vx, 2+vy, 5+vz, 0.0, 0.0, 1.0);
+	glutPostRedisplay()
     
+
+def DrawGLScene():
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear The Screen And The Depth Buffer
+    camara();  # Reset The View
+    global vx,vy,vz
+    #glTranslatef(0.0, 0.0, -10.0)  # Move Into The Screen
     # Note there does not seem to be support for this call.
     # glBindTexture(GL_TEXTURE_2D,texture)	# Rotate The Pyramid On It's Y Axis
-
-    glBegin(GL_QUADS)  # Start Drawing The Cube
-
-    # Front Face (note that the texture's corners have to match the quad's corners)
-    glMultiTexCoord2f(GL_TEXTURE0_ARB, 0.0, 0.0) 
-    glVertex3f(-1.0, -1.0, 1.0)  # Bottom Left Of The Texture and Quad
-    glMultiTexCoord2f(GL_TEXTURE0_ARB, 1.0, 0.0) 
-    glVertex3f(1.0, -1.0, 1.0)  # Bottom Right Of The Texture and Quad
-    glMultiTexCoord2f(GL_TEXTURE0_ARB, 1.0, 1.0) 
-    glVertex3f(1.0, 1.0, 1.0)  # Top Right Of The Texture and Quad
-    glMultiTexCoord2f(GL_TEXTURE0_ARB, 0.0, 1.0) 
-    glVertex3f(-1.0, 1.0, 1.0)  # Top Left Of The Texture and Quad
-    glEnd()
-
+    glPushMatrix()
+    glTranslatef(-50,-50,0)#para ubicarte en el centro
+    for i in range(0,100,2):
+    	for j in range(0,100,2):
+    		dibujar_piso(i,j,0);
+    glPopMatrix()
+    
+    glPushMatrix()
+    glTranslatef(2+vx,2+vy,5+vz)#para ubicarte en el centro
+    glColor3f(0.0, 0.0, 1.0);
+    glutWireSphere(.5,28,28);
+    glPopMatrix()
+    
     #  since this is double buffered, swap the buffers to display what just got drawn.
     glutSwapBuffers()
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
+
 def keyPressed(*args):
-    # If escape is pressed, kill everything.
-    if args[0] == ESCAPE:
-        sys.exit()
+	global x,y,z,vx,vy,vz
+	if args[0] == 'q':
+		sys.exit()
+	if args[0] == 'a':
+		x-=0.1
+		vx-=0.1
+	if args[0] == 'w':
+		y+=0.1
+		vy+=0.1
+	if args[0] == 's':
+		y-=0.1
+		vy-=0.1
+	if args[0] == 'd':
+		x+=0.1
+		vx+=0.1
+	if args[0] == 'u':
+		z+=0.5
+		vz+=0.5
+	if args[0] == 'i':
+		z-=0.5
+		vz-=0.5
+	if args[0] == '4':
+		vx-=0.1
+	if args[0] == '8':
+		vy+=0.1
+	if args[0] == '5':
+		vy-=0.1
+	if args[0] == '6':
+		vx+=0.1
+	if args[0] == '7':
+		vz+=0.1
+	if args[0] == '1':
+		vz-=0.1
+	glutPostRedisplay()
+
+vx=0
+vy=0
+vz=0
+x=0
+y=0
+z=0
 
 def main():
     global window
