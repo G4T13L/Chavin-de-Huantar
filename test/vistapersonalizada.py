@@ -4,10 +4,17 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-from math import atan,sin,cos
+from math import atan,sin,cos,pi
 import sys
 
-
+p0=[0,0,5];
+m=0.3;
+teta = 0;
+a=[m*cos(teta*pi/180),m*sin(teta*pi/180)];
+l=[m*sin(teta*pi/180),-1*m*cos(teta*pi/180)];
+p1=[p0[0]+m*cos(teta),p0[1]+m*sin(teta),p0[2]];
+salto=0;
+conts=0;
 # La siguiente es una funcion de inicializacion
 def init():
     # utilizaremos el color negro como fondo
@@ -20,20 +27,16 @@ def init():
     gluOrtho2D(-1.0, 1.0, -1.0, 1.0)
 
 def camara():
-	global p0,p1,m,a,l
-	teta = atan((p1[1]-p0[1])/(p1[0]-p0[0])) #angulo de x con el segmento p1-p0
-	a=[m*cos(teta),m*sin(teta)];
-	l=[m*sin(teta),-1*m*cos(teta)];
-	
+	global p0,p1,m
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, 1.0, 1.0, 128.0);
+	gluPerspective(60, 1.0, 0, 128.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity()
-	gluLookAt(0+p0[0],0+p0[1],0+p0[2], 1.0+p1[0], 1.0+p1[1], 1.0+p1[2], 0.0, 0.0, 1.0);
+	gluLookAt(p0[0],p0[1],p0[2], p1[0], p1[1], p1[2], 0.0, 0.0, 1.0);
 	glutPostRedisplay()
-    
+
 
 def dibujar_piso(x,y,z):
 	glPushMatrix();
@@ -41,10 +44,10 @@ def dibujar_piso(x,y,z):
 	glColor3f(0,0,1);
 	glBegin(GL_QUADS)  # Start Drawing The Cube
   	# Front Face (note that the texture's corners have to match the quad's corners)
-    	glVertex3f(-1.0, -1.0, 1.0)  # Bottom Left Of The Texture and Quad
-    	glVertex3f(1.0, -1.0, 1.0)  # Bottom Right Of The Texture and Quad
-    	glVertex3f(1.0, 1.0, 1.0)  # Top Right Of The Texture and Quad
-    	glVertex3f(-1.0, 1.0, 1.0)  # Top Left Of The Texture and Quad
+    	glVertex3f(-1.0, -1.0, 0)  # Bottom Left Of The Texture and Quad
+    	glVertex3f(1.0, -1.0, 0)  # Bottom Right Of The Texture and Quad
+    	glVertex3f(1.0, 1.0, 0)  # Top Right Of The Texture and Quad
+    	glVertex3f(-1.0, 1.0, 0)  # Top Left Of The Texture and Quad
     	glEnd()
 	glPopMatrix();
 
@@ -58,17 +61,17 @@ def display():
     #vision
     glPushMatrix()
     glColor3f(0,1,0)
-    glTranslatef(1.0+p1[0], 1.0+p1[1], 1.0+p1[2]);
-    glutWireSphere(.20,30,30)
+    glTranslatef(p1[0],p1[1],p1[2]);
+    glutWireSphere(0.1,30,30)
     glPopMatrix()
-    
     
     glPushMatrix()
     glTranslatef(-50,-50,0)#para ubicarte en el centro
-    for i in range(0,100,5):
-    	for j in range(0,100,5):
+    for i in range(0,100,3):
+    	for j in range(0,100,3):
     		dibujar_piso(i,j,0);
     glPopMatrix()
+    
     
     glColor3f(1.0, 0.0, 0.0);
     glTranslatef(1,1,1);
@@ -131,7 +134,10 @@ def reshape(width, height):
 
 
 def keyPressed(*args):
-	global p0,p1,a,l
+	global p0,p1,a,l,teta,m,salto,conts
+	a=[m*cos(teta*pi/180),m*sin(teta*pi/180)];
+	l=[m*sin(teta*pi/180),-1*m*cos(teta*pi/180)];
+	
 	if args[0] == 'q':
 		sys.exit()
 	if args[0] == 'a':
@@ -158,33 +164,43 @@ def keyPressed(*args):
 		p1[0]=p1[0]+l[0];
 		p1[1]=p1[1]+l[1];
 		glutPostRedisplay()
-	if args[0] == 'u':
-		p0[2]+=0.1
-		p1[2]+=0.1
+	if args[0] == ' ' and salto==0:
+		salto=1;
+		conts=0;
 		glutPostRedisplay()
 	if args[0] == 'i':
 		p0[2]-=0.1
-		p0[2]-=0.1
-		glutPostRedisplay()
-	if args[0] == '4':
-		p1[0]-=0.1
-		glutPostRedisplay()
-	if args[0] == '8':
-		p1[2]+=0.1
-		glutPostRedisplay()
-	if args[0] == '5':
 		p1[2]-=0.1
 		glutPostRedisplay()
-	if args[0] == '6':
-		p1[0]+=0.1
+	if args[0] == '8':
+		p1[2]+=0.01
 		glutPostRedisplay()
-
-p0=[0,0,1];
-p1=[1,1,1];
-m=0.1;
-teta = atan((p1[1]-p0[1])/(p1[0]-p0[0])) #angulo de x con el segmento p1-p0
-a=[m*cos(teta),m*sin(teta)];
-l=[m*sin(teta),-1*m*cos(teta)];
+	if args[0] == '5':
+		p1[2]-=0.01
+		glutPostRedisplay()
+	if args[0] == '6':
+		teta-=2
+		p1[0]=p0[0]+m*cos(teta*pi/180)
+		p1[1]=p0[1]+m*sin(teta*pi/180)
+		glutPostRedisplay()
+	if args[0] == '4':
+		teta+=2
+		p1[0]=p0[0]+m*cos(teta*pi/180)
+		p1[1]=p0[1]+m*sin(teta*pi/180)
+		glutPostRedisplay()
+	
+	if salto==1:
+		conts+=1
+		if conts<100:
+			p0[2]+=0.1
+			p1[2]+=0.1
+		elif conts>=100 and p0[2]>5:
+			p0[2]-=0.1
+			p1[2]-=0.1
+		elif p0[2]<=5:
+			p0[2]=5
+			salto=0
+		glutPostRedisplay()
 	
 
 # usaremos la funcion main para iniciar OPENGL y llamar
@@ -194,7 +210,7 @@ def main():
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
     glutInitWindowSize(500, 500)
     glutInitWindowPosition(50, 50)
-    glutCreateWindow("Laboratorio 2")
+    glutCreateWindow("VistaPersonalizada")
     init()	
     glutDisplayFunc(display)
     glutKeyboardFunc(keyPressed)
