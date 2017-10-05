@@ -1,10 +1,5 @@
 
 import string
-
-__version__ = string.split('$Revision: 1.1.1.1 $')[1]
-__date__ = string.join(string.split('$Date: 2015/02/15 19:25:21 $')[1:3], ' ')
-__author__ = 'Modificado por ___________'
-
 #
 #
 
@@ -92,7 +87,7 @@ def ReSizeGLScene(Width, Height):
     glViewport(0, 0, Width, Height)  # Reset The Current Viewport And Perspective Transformation
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(45.0, float(Width) / float(Height), 0.1, 100.0)
+    gluPerspective(45.0, float(Width) / float(Height), 0., 100.0)
     gluLookAt(0,0,5,2,2,5,0,0,1)
     glMatrixMode(GL_MODELVIEW)
 
@@ -102,47 +97,106 @@ def dibujar_piso(x,y,z):
 	glBegin(GL_QUADS)  # Start Drawing The Cube
   	# Front Face (note that the texture's corners have to match the quad's corners)
   	glMultiTexCoord2f(GL_TEXTURE0_ARB, 0.0, 0.0) 
-    	glVertex3f(-1.0, -1.0, 1.0)  # Bottom Left Of The Texture and Quad
+    	glVertex3f(-1.0, 0, -1.0)  # Bottom Left Of The Texture and Quad
     	glMultiTexCoord2f(GL_TEXTURE0_ARB, 1.0, 0.0) 
-    	glVertex3f(1.0, -1.0, 1.0)  # Bottom Right Of The Texture and Quad
+    	glVertex3f(1.0, 0, -1.0)  # Bottom Right Of The Texture and Quad
     	glMultiTexCoord2f(GL_TEXTURE0_ARB, 1.0, 1.0) 
-    	glVertex3f(1.0, 1.0, 1.0)  # Top Right Of The Texture and Quad
+    	glVertex3f(1.0, 0, 1.0)  # Top Right Of The Texture and Quad
     	glMultiTexCoord2f(GL_TEXTURE0_ARB, 0.0, 1.0) 
-    	glVertex3f(-1.0, 1.0, 1.0)  # Top Left Of The Texture and Quad
+    	glVertex3f(-1.0, 0, 1.0)  # Top Left Of The Texture and Quad
     	glEnd()
 	glPopMatrix();
 
 def camara():
-	global x,y,z,vx,vz
+	global p0,p1
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0, 1.0, 1.0, 128.0);
+	gluPerspective(60.0, 1.0, 0.1, 128.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity()
-	gluLookAt(0+x,0+y,5+z, 2+vx, 2+vy, 5+vz, 0.0, 0.0, 1.0);
+	gluLookAt(p0[0],p0[1],p0[2],p1[0],p1[1],p1[2], 0.0, 1.0, 0.0);
 	glutPostRedisplay()
-    
 
+pb=[5,5,5]
+a_b=[0,0,0]
+vis_b = 0
+def mov_bala():
+	c=1
+	pb[0] = pb[0] +a_b[0]*c
+	pb[1] = pb[1] +a_b[1]*c
+	pb[2] = pb[2] +a_b[2]*c
+	glutPostRedisplay()
+
+def dibujar_bala(x,y,z):
+	glPushMatrix();
+	glTranslatef(x,y,z)
+	glScalef(0.01,0.01,0.01)
+	k=0
+	for i in range(0,720*5):
+		k+=0.1
+		glColor3f(1,0,0)
+		#disco
+		glBegin(GL_LINES)
+		glVertex3f(0.3*cos(k*pi/180),0.3*sin(k*pi/180),0)
+    		glVertex3f(cos(k*pi/180),sin(k*pi/180),0)
+    		glEnd()
+    		#cilindro
+    		glBegin(GL_LINES)
+		glVertex3f(cos(k*pi/180),sin(k*pi/180),0)
+    		glVertex3f(cos(k*pi/180),sin(k*pi/180),2)
+    		glEnd()
+		#cono
+		glBegin(GL_LINES)
+		glVertex3f(cos(k*pi/180),sin(k*pi/180),2)
+    		glVertex3f(0,0,3.5)
+    		glEnd()
+		
+	
+	
+	glPopMatrix();
+	
+	
+	    
+	
+	
+	
 def DrawGLScene():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear The Screen And The Depth Buffer
+    
     camara();  # Reset The View
-    global vx,vy,vz
-    #glTranslatef(0.0, 0.0, -10.0)  # Move Into The Screen
+    
     # Note there does not seem to be support for this call.
     # glBindTexture(GL_TEXTURE_2D,texture)	# Rotate The Pyramid On It's Y Axis
     glPushMatrix()
-    glTranslatef(-50,-50,0)#para ubicarte en el centro
+    glTranslatef(-50,0,-50)#para ubicarte en el centro
     for i in range(0,100,2):
     	for j in range(0,100,2):
-    		dibujar_piso(i,j,0);
+    		dibujar_piso(i,0,j);
+    glPopMatrix()
+    
+    dibujar_bala(pb[0],pb[1],pb[2])
+    #mov_bala()
+        
+    glPushMatrix()
+    glColor3f(0.0, 0.0, 1.0);
+    glTranslatef(0,2,0)
+    glutWireSphere(1,28,28);
     glPopMatrix()
     
     glPushMatrix()
-    glTranslatef(2+vx,2+vy,5+vz)#para ubicarte en el centro
     glColor3f(0.0, 0.0, 1.0);
-    glutWireSphere(.5,28,28);
+    glTranslatef(1,2,1)
+    glRotatef(90,1,0,0)
+    glutWireSphere(1,28,28);
+    glPopMatrix()
+    
+    glPushMatrix()
+    glColor3f(0.0, 0.0, 1.0);
+    glTranslatef(0,2,0)
+    glRotate(90,1,0,0)
+    glutWireSphere(2,28,28);
     glPopMatrix()
     
     #  since this is double buffered, swap the buffers to display what just got drawn.
@@ -150,49 +204,63 @@ def DrawGLScene():
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
 
+global p0,p1,teta,alfa,teta,a,l
+p0=[1,2,1]
+teta=20
+alfa=10
+p1=[p0[0]+sin(teta*pi/180),p0[1]+tan(alfa*pi/180),p0[2]+cos(teta*pi/180)]
+a=[sin(teta*pi/180),cos(teta*pi/180)]
+l=[-cos(teta*pi/180),sin(teta*pi/180)]
+	
 def keyPressed(*args):
-	global x,y,z,vx,vy,vz
+	global a,teta,l,alfa,pb,a_b,vis_b
+	m=0.2
+	# [       X        ,       Z        ]
+	a=[sin(teta*pi/180),cos(teta*pi/180)]
+	l=[-cos(teta*pi/180),sin(teta*pi/180)]
 	if args[0] == 'q':
 		sys.exit()
 	if args[0] == 'a':
-		x-=0.1
-		vx-=0.1
+		p0[0]=p0[0]-m*l[0]
+		p0[2]=p0[2]-m*l[1]
+		p1[0]=p1[0]-m*l[0]
+		p1[2]=p1[2]-m*l[1]
 	if args[0] == 'w':
-		y+=0.1
-		vy+=0.1
+		p0[0]=p0[0]+m*a[0]
+		p0[2]=p0[2]+m*a[1]
+		p1[0]=p1[0]+m*a[0]
+		p1[2]=p1[2]+m*a[1]
 	if args[0] == 's':
-		y-=0.1
-		vy-=0.1
+		p0[0]=p0[0]-m*a[0]
+		p0[2]=p0[2]-m*a[1]
+		p1[0]=p1[0]-m*a[0]
+		p1[2]=p1[2]-m*a[1]
 	if args[0] == 'd':
-		x+=0.1
-		vx+=0.1
-	if args[0] == 'u':
-		z+=0.5
-		vz+=0.5
-	if args[0] == 'i':
-		z-=0.5
-		vz-=0.5
+		p0[0]=p0[0]+m*l[0]
+		p0[2]=p0[2]+m*l[1]
+		p1[0]=p1[0]+m*l[0]
+		p1[2]=p1[2]+m*l[1]
 	if args[0] == '4':
-		vx-=0.1
-	if args[0] == '8':
-		vy+=0.1
-	if args[0] == '5':
-		vy-=0.1
+		teta+=2
+		p1[0]=p0[0]+m*sin(teta*pi/180)
+		p1[2]=p0[2]+m*cos(teta*pi/180)
 	if args[0] == '6':
-		vx+=0.1
-	if args[0] == '7':
-		vz+=0.1
-	if args[0] == '1':
-		vz-=0.1
+		teta-=2
+		p1[0]=p0[0]+m*sin(teta*pi/180)
+		p1[2]=p0[2]+m*cos(teta*pi/180)
+	if args[0] == '8':
+		alfa+=1
+		p1[1]=p0[1]+m*tan(alfa*pi/180)
+	if args[0] == '5':
+		alfa-=1
+		p1[1]=p0[1]+m*tan(alfa*pi/180)
+	if args[0] == 'f' and vis_b == 0:
+		vis_b==1
+		pb[0] = p0[0]+a[0]
+		pb[2] = p0[2]+a[1]
+		pb[1] = p0[1]+p1[1]-p0[1]
+		a_b = [p1[0]-p0[0],p1[1]-p0[1],p1[2]-p0[2]]
 	glutPostRedisplay()
-
-vx=0
-vy=0
-vz=0
-x=0
-y=0
-z=0
-
 def main():
     global window
     glutInit(sys.argv)
@@ -226,7 +294,7 @@ def main():
 
     # Register the function called when the keyboard is pressed.
     glutKeyboardFunc(keyPressed)
-
+    
     # Initialize our window.
     InitGL(640, 480)
 

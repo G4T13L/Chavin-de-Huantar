@@ -56,14 +56,9 @@ def dibujar_piso(x,y,z):
 def display():
     glClearColor(1.0, 1.0, 1.0, 0.0);
     camara();
-    global p1,p0
-    
-    #vision
-    glPushMatrix()
-    glColor3f(0,1,0)
-    glTranslatef(p1[0],p1[1],p1[2]);
-    glutWireSphere(0.1,30,30)
-    glPopMatrix()
+    global p1,p0,a,l
+    d=1
+    actualizar_estado()    
     
     glPushMatrix()
     glTranslatef(-50,-50,0)#para ubicarte en el centro
@@ -145,56 +140,52 @@ def keyPressed(*args):
 		p0[1]=p0[1]-l[1];
 		p1[0]=p1[0]-l[0];
 		p1[1]=p1[1]-l[1];
-		glutPostRedisplay()
+		
 	if args[0] == 'w':
 		p0[0]=p0[0]+a[0];
 		p0[1]=p0[1]+a[1];
 		p1[0]=p1[0]+a[0];
 		p1[1]=p1[1]+a[1];
-		glutPostRedisplay()
+
 	if args[0] == 's':
 		p0[0]=p0[0]-a[0];
 		p0[1]=p0[1]-a[1];
 		p1[0]=p1[0]-a[0];
 		p1[1]=p1[1]-a[1];
-		glutPostRedisplay()
 	if args[0] == 'd':
 		p0[0]=p0[0]+l[0];
 		p0[1]=p0[1]+l[1];
 		p1[0]=p1[0]+l[0];
 		p1[1]=p1[1]+l[1];
-		glutPostRedisplay()
 	if args[0] == ' ' and salto==0:
 		salto=1;
 		conts=0;
-		glutPostRedisplay()
 	if args[0] == 'i':
 		p0[2]-=0.1
 		p1[2]-=0.1
-		glutPostRedisplay()
 	if args[0] == '8':
 		p1[2]+=0.01
-		glutPostRedisplay()
 	if args[0] == '5':
 		p1[2]-=0.01
-		glutPostRedisplay()
 	if args[0] == '6':
 		teta-=2
 		p1[0]=p0[0]+m*cos(teta*pi/180)
 		p1[1]=p0[1]+m*sin(teta*pi/180)
-		glutPostRedisplay()
 	if args[0] == '4':
 		teta+=2
 		p1[0]=p0[0]+m*cos(teta*pi/180)
 		p1[1]=p0[1]+m*sin(teta*pi/180)
-		glutPostRedisplay()
-	
+	sys.stdout.flush()
+	glutPostRedisplay()
+		
+def actualizar_estado():
+	global salto, conts, p0,p1
 	if salto==1:
 		conts+=1
-		if conts<100:
+		if conts<40:
 			p0[2]+=0.1
 			p1[2]+=0.1
-		elif conts>=100 and p0[2]>5:
+		elif conts>=40 and p0[2]>5:
 			p0[2]-=0.1
 			p1[2]-=0.1
 		elif p0[2]<=5:
@@ -204,7 +195,7 @@ def keyPressed(*args):
 	
 
 # usaremos la funcion main para iniciar OPENGL y llamar
-# rutinas de	inicializacion como init
+# rutinas de inicializacion como init
 def main():
     glutInit(sys.argv)
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB)
