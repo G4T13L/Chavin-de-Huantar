@@ -75,7 +75,7 @@ def InitGL(Width, Height):  # We call this right after our OpenGL window is crea
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()  # Reset The Projection Matrix
     # Calculate The Aspect Ratio Of The Window
-    gluPerspective(45.0, float(Width) / float(Height), 0.1, 100.0)
+    gluPerspective(60.0, float(Width) / float(Height), 0.1, 100.0)
 
     glMatrixMode(GL_MODELVIEW)
 
@@ -87,8 +87,8 @@ def ReSizeGLScene(Width, Height):
     glViewport(0, 0, Width, Height)  # Reset The Current Viewport And Perspective Transformation
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    gluPerspective(45.0, float(Width) / float(Height), 0., 100.0)
-    gluLookAt(0,0,5,2,2,5,0,0,1)
+    gluPerspective(60.0, float(Width) / float(Height), 0., 100.0)
+    gluLookAt(p0[0],p0[1],p0[2],p1[0],p1[1],p1[2], 0.0, 1.0, 0.0);
     glMatrixMode(GL_MODELVIEW)
 
 def dibujar_piso(x,y,z):
@@ -108,9 +108,10 @@ def dibujar_piso(x,y,z):
 	glPopMatrix();
 
 def camara():
-	global p0,p1
+	global p0,p1,teta,alfa
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+	print  "camara:"+repr(p0[0])+" "+ repr(p0[1])+" "+repr(p0[2])+" "+repr(teta)
+	print  "camara:"+repr(p1[0])+" "+ repr(p1[1])+" "+repr(p1[2])+" "+repr(alfa)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(60.0, 1.0, 0.1, 128.0);
@@ -156,12 +157,7 @@ def dibujar_bala(x,y,z):
 	
 	
 	glPopMatrix();
-	
-	
-	    
-	
-	
-	
+		
 def DrawGLScene():
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Clear The Screen And The Depth Buffer
     
@@ -204,16 +200,17 @@ def DrawGLScene():
 
 # The function called whenever a key is pressed. Note the use of Python tuples to pass in: (key, x, y)
 
-global p0,p1,teta,alfa,teta,a,l
 p0=[1,2,1]
 teta=20
 alfa=10
 p1=[p0[0]+sin(teta*pi/180),p0[1]+tan(alfa*pi/180),p0[2]+cos(teta*pi/180)]
 a=[sin(teta*pi/180),cos(teta*pi/180)]
 l=[-cos(teta*pi/180),sin(teta*pi/180)]
-	
+print  repr(p0[0])+" "+ repr(p0[1])+" "+repr(p0[2])+" "+repr(teta)
+print  repr(p1[0])+" "+ repr(p1[1])+" "+repr(p1[2])	
+
 def keyPressed(*args):
-	global a,teta,l,alfa,pb,a_b,vis_b
+	global p0,p1,a,teta,l,alfa,pb,a_b,vis_b
 	m=0.2
 	# [       X        ,       Z        ]
 	a=[sin(teta*pi/180),cos(teta*pi/180)]
@@ -250,10 +247,10 @@ def keyPressed(*args):
 		p1[2]=p0[2]+m*cos(teta*pi/180)
 	if args[0] == '8':
 		alfa+=1
-		p1[1]=p0[1]+m*tan(alfa*pi/180)
+		p1[1]+=0.1
 	if args[0] == '5':
 		alfa-=1
-		p1[1]=p0[1]+m*tan(alfa*pi/180)
+		p1[1]-=0.1
 	if args[0] == 'f' and vis_b == 0:
 		vis_b==1
 		pb[0] = p0[0]+a[0]
@@ -261,6 +258,10 @@ def keyPressed(*args):
 		pb[1] = p0[1]+p1[1]-p0[1]
 		a_b = [p1[0]-p0[0],p1[1]-p0[1],p1[2]-p0[2]]
 	glutPostRedisplay()
+	if args[0] == 'e':
+		print  repr(p0[0])+" "+ repr(p0[1])+" "+repr(p0[2])+" "+repr(teta)
+		print  repr(p1[0])+" "+ repr(p1[1])+" "+repr(p1[2])	
+
 def main():
     global window
     glutInit(sys.argv)
