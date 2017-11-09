@@ -20,7 +20,6 @@ def init():
     # utilizaremos el color negro como fondo
     # los numeros (de 0 a 1.0) corresponden a (Red,Green,Blue,alpha)
     glClearColor(0.0, 0.0, 0.0, 1.0)
-    
     # Definimos los rangos del sistema de coordenadas
     # gluOrtho2D(x-izquierda, x-derecha, y-abajo, y-arriba)
     # lo que coloca el origen (0,0) en el centro de la pantalla
@@ -35,6 +34,8 @@ def camara():
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity()
 	gluLookAt(p0[0],p0[1],p0[2], p1[0], p1[1], p1[2], 0.0, 0.0, 1.0);
+	glDepthFunc(GL_LESS)
+    	glEnable(GL_DEPTH_TEST)
 	glutPostRedisplay()
 
 
