@@ -1,6 +1,7 @@
 # lab02-1.py
 # Dibujando con OpenGL Parte 1
 
+
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
